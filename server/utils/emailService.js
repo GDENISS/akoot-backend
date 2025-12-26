@@ -16,11 +16,15 @@ class EmailService {
     try {
       this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST || 'smtp.zoho.com',
-        port: parseInt(process.env.EMAIL_PORT) || 465,
-        secure: process.env.EMAIL_SECURE === 'true' || true, // true for 465, false for other ports
+        port: parseInt(process.env.EMAIL_PORT) || 587,
+        secure: false, // Use STARTTLS on port 587
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASSWORD
+        },
+        tls: {
+          ciphers: 'SSLv3',
+          rejectUnauthorized: false
         }
       });
 

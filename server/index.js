@@ -14,6 +14,9 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 // Initialize express app
 const app = express();
 
+// Trust proxy - required for Render and rate limiting
+app.set('trust proxy', 1);
+
 // Connect to database
 connectDB();
 
