@@ -1,7 +1,7 @@
 const EmailSubscription = require('../models/EmailSubscription');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
-const emailService = require('../utils/emailServiceZohoAPI');
+const emailService = require('../utils/emailServiceResend');
 
 // @desc    Subscribe to email list
 // @route   POST /api/subscriptions
