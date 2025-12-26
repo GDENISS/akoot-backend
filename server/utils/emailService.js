@@ -14,6 +14,14 @@ class EmailService {
    */
   initializeTransporter() {
     try {
+      // Check if required email config is present
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+        console.error('⚠️  Email configuration missing! EMAIL_USER or EMAIL_PASSWORD not set.');
+        console.error('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+        console.error('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Set (hidden)' : 'Not set');
+        return;
+      }
+
       this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST || 'smtp.zoho.com',
         port: parseInt(process.env.EMAIL_PORT) || 587,
@@ -28,7 +36,12 @@ class EmailService {
         }
       });
 
-      console.log('Email service initialized successfully');
+      console.log('✅ Email service initialized successfully');
+      console.log('Email config:', {
+        host: process.env.EMAIL_HOST || 'smtp.zoho.com',
+        port: parseInt(process.env.EMAIL_PORT) || 587,
+        user: process.env.EMAIL_USER
+      });
     } catch (error) {
       console.error('Failed to initialize email service:', error.message);
     }
@@ -52,6 +65,11 @@ class EmailService {
    * Send email notification for new contact form submission
    */
   async sendContactNotification(contactData) {
+    if (!this.transporter) {
+      console.error('❌ Cannot send contact notification: Email transporter not initialized');
+      return { success: false, error: 'Email service not configured' };
+    }
+
     try {
       const { name, email, phone, subject, message, company } = contactData;
 
@@ -114,6 +132,11 @@ Received: ${new Date().toLocaleString()}
    * Send email notification for new subscription
    */
   async sendSubscriptionNotification(subscriptionData) {
+    if (!this.transporter) {
+      console.error('❌ Cannot send subscription notification: Email transporter not initialized');
+      return { success: false, error: 'Email service not configured' };
+    }
+
     try {
       const { email, name, subscriptionType, source } = subscriptionData;
 
@@ -166,6 +189,11 @@ A new subscriber has joined your mailing list!
    * Send welcome email to new subscriber
    */
   async sendWelcomeEmail(email, name) {
+    if (!this.transporter) {
+      console.error('❌ Cannot send welcome email: Email transporter not initialized');
+      return { success: false, error: 'Email service not configured' };
+    }
+
     try {
       const mailOptions = {
         from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`,
