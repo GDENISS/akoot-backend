@@ -37,7 +37,7 @@ const emailSubscriptionSchema = new mongoose.Schema({
   },
   source: {
     type: String,
-    enum: ['website', 'blog', 'landing_page', 'popup', 'other'],
+    enum: ['website', 'blog', 'landing_page', 'popup', 'e-rates', 'other'],
     default: 'website'
   },
   verificationToken: {

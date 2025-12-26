@@ -1,6 +1,7 @@
 const EmailSubscription = require('../models/EmailSubscription');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const emailService = require('../utils/emailService');
 
 // @desc    Subscribe to email list
 // @route   POST /api/subscriptions
@@ -47,6 +48,18 @@ exports.subscribe = asyncHandler(async (req, res, next) => {
   // Generate unsubscribe token
   subscription.generateUnsubscribeToken();
   await subscription.save();
+
+  // Send notification emails (don't wait for them to complete)
+  emailService.sendSubscriptionNotification({
+    email: subscription.email,
+    name: subscription.name,
+    subscriptionType: subscription.subscriptionType,
+    source: subscription.source
+  }).catch(err => console.error('Failed to send admin notification:', err.message));
+
+  // Send welcome email to subscriber
+  emailService.sendWelcomeEmail(subscription.email, subscription.name)
+    .catch(err => console.error('Failed to send welcome email:', err.message));
 
   res.status(201).json({
     success: true,

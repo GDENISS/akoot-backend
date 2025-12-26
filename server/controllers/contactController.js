@@ -1,6 +1,7 @@
 const Contact = require('../models/Contact');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const emailService = require('../utils/emailService');
 
 // @desc    Create new contact submission
 // @route   POST /api/contacts
@@ -22,6 +23,16 @@ exports.createContact = asyncHandler(async (req, res, next) => {
     ipAddress,
     userAgent
   });
+
+  // Send email notification to admin (don't wait for it to complete)
+  emailService.sendContactNotification({
+    name: contact.name,
+    email: contact.email,
+    phone: contact.phone,
+    subject: contact.subject,
+    message: contact.message,
+    company: contact.company
+  }).catch(err => console.error('Failed to send contact notification:', err.message));
 
   res.status(201).json({
     success: true,

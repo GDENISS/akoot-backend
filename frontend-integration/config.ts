@@ -1,5 +1,3 @@
-// API Configuration for Next.js Frontend
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export const apiConfig = {
@@ -10,7 +8,6 @@ export const apiConfig = {
   },
 };
 
-// API Helper Function
 export async function apiRequest<T>(
   endpoint: string,
   options?: RequestInit
@@ -25,8 +22,18 @@ export async function apiRequest<T>(
     },
   };
 
+  // Create an AbortController for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), apiConfig.timeout);
+
   try {
-    const response = await fetch(url, config);
+    const response = await fetch(url, {
+      ...config,
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
     const data = await response.json();
 
     if (!response.ok) {
@@ -35,14 +42,18 @@ export async function apiRequest<T>(
 
     return data;
   } catch (error) {
+    clearTimeout(timeoutId);
+    
     if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please check your connection.');
+      }
       throw error;
     }
     throw new Error('Network error occurred');
   }
 }
 
-// Health check
 export async function checkHealth() {
   const url = API_URL.replace('/api', '/health');
   const response = await fetch(url);
