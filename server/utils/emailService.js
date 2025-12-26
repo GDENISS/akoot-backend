@@ -1,12 +1,12 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
 /**
- * Email service for sending notifications
+ * Email service for sending notifications using SendGrid
  */
 class EmailService {
   constructor() {
-    this.transporter = null;
-    this.initializeTransporter();
+    this.isConfigured = false;
+    this.initializeSendGrid();
   }
 
   /**

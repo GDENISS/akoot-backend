@@ -1,7 +1,7 @@
 const Contact = require('../models/Contact');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
-const emailService = require('../utils/emailService');
+const emailService = require('../utils/emailServiceSendGrid');
 
 // @desc    Create new contact submission
 // @route   POST /api/contacts
