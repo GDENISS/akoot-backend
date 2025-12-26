@@ -52,7 +52,7 @@ class EmailService {
 
       const { data, error } = await this.resend.emails.send({
         from: `${process.env.EMAIL_FROM_NAME || 'Akoot Tech'} <${process.env.EMAIL_FROM}>`,
-        to: [process.env.EMAIL_FROM],
+        to: [process.env.EMAIL_TO || process.env.EMAIL_FROM],
         replyTo: email,
         subject: `New Contact: ${subject}`,
         html: `
@@ -108,7 +108,7 @@ class EmailService {
 
       const { data, error } = await this.resend.emails.send({
         from: `${process.env.EMAIL_FROM_NAME || 'Akoot Tech'} <${process.env.EMAIL_FROM}>`,
-        to: [process.env.EMAIL_FROM],
+        to: [process.env.EMAIL_TO || process.env.EMAIL_FROM],
         subject: `New Subscriber: ${email}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px;">
