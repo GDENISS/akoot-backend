@@ -24,16 +24,15 @@ class EmailService {
 
       this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST || 'smtp.zoho.com',
-        port: parseInt(process.env.EMAIL_PORT) || 587,
-        secure: false, // Use STARTTLS on port 587
+        port: parseInt(process.env.EMAIL_PORT) || 465,
+        secure: true, // Use SSL for port 465
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASSWORD
         },
-        tls: {
-          ciphers: 'SSLv3',
-          rejectUnauthorized: false
-        }
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000
       });
 
       console.log('✅ Email service initialized successfully');
@@ -41,6 +40,13 @@ class EmailService {
         host: process.env.EMAIL_HOST || 'smtp.zoho.com',
         port: parseInt(process.env.EMAIL_PORT) || 587,
         user: process.env.EMAIL_USER
+      });
+
+      // Verify connection on startup
+      this.verifyConnection().then(result => {
+        if (!result) {
+          console.error('❌ Email service verification failed - emails will not be sent!');
+        }
       });
     } catch (error) {
       console.error('Failed to initialize email service:', error.message);
@@ -51,12 +57,18 @@ class EmailService {
    * Verify email configuration
    */
   async verifyConnection() {
+    if (!this.transporter) {
+      console.error('❌ Cannot verify connection: Email transporter not initialized');
+      return false;
+    }
+    
     try {
       await this.transporter.verify();
-      console.log('Email server is ready to send messages');
+      console.log('✅ Email server connection verified - ready to send emails');
       return true;
     } catch (error) {
-      console.error('Email server connection failed:', error.message);
+      console.error('❌ Email server connection failed:', error.message);
+      console.error('Full error:', error);
       return false;
     }
   }
@@ -120,10 +132,11 @@ Received: ${new Date().toLocaleString()}
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('Contact notification sent:', info.messageId);
+      console.log('✅ Contact notification sent successfully:', info.messageId);
       return { success: true, messageId: info.messageId };
     } catch (error) {
-      console.error('Error sending contact notification:', error.message);
+      console.error('❌ Error sending contact notification:', error.message);
+      console.error('Full error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -177,10 +190,11 @@ A new subscriber has joined your mailing list!
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('Subscription notification sent:', info.messageId);
+      console.log('✅ Subscription notification sent successfully:', info.messageId);
       return { success: true, messageId: info.messageId };
     } catch (error) {
-      console.error('Error sending subscription notification:', error.message);
+      console.error('❌ Error sending subscription notification:', error.message);
+      console.error('Full error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -249,10 +263,11 @@ You can unsubscribe at any time by clicking the unsubscribe link in our emails.
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('Welcome email sent:', info.messageId);
+      console.log('✅ Welcome email sent successfully:', info.messageId);
       return { success: true, messageId: info.messageId };
     } catch (error) {
-      console.error('Error sending welcome email:', error.message);
+      console.error('❌ Error sending welcome email:', error.message);
+      console.error('Full error:', error);
       return { success: false, error: error.message };
     }
   }
