@@ -1,7 +1,7 @@
 const Contact = require('../models/Contact');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
-const emailService = require('../utils/emailServiceZoho');
+const emailService = require('../utils/emailServiceZohoAPI');
 
 // @desc    Create new contact submission
 // @route   POST /api/contacts
