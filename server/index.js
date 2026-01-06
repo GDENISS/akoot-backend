@@ -10,6 +10,7 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 const blogRoutes = require('./routes/blogRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Initialize express app
 const app = express();
@@ -70,6 +71,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);

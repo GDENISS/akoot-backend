@@ -25,3 +25,26 @@ Thumbs.db
 # Build files
 dist/
 build/
+
+# Documentation (implementation/setup guides)
+AUTHENTICATION_*.md
+BLOG_INTERACTIONS_BACKEND.md
+API_CONTRACT.md
+QUICK_START_TESTING.md
+IMPLEMENTATION_SUMMARY.md
+AUTHENTICATION_VISUAL_GUIDE.md
+
+# Scripts (local setup helpers)
+scripts/
+
+# Test files
+*.test.js
+*.spec.js
+test/
+tests/
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

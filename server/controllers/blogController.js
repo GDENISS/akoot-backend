@@ -84,13 +84,37 @@ exports.getBlog = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Blog not found with id/slug: ${id}`, 404));
   }
 
-  // Increment views
-  blog.views += 1;
-  await blog.save();
-
   res.status(200).json({
     success: true,
     data: blog
+  });
+});
+
+// @desc    Track blog view
+// @route   POST /api/blogs/:slug/view
+// @access  Public
+exports.trackView = asyncHandler(async (req, res, next) => {
+  const { slug } = req.params;
+  
+  const blog = await Blog.findOne({ slug });
+
+  if (!blog) {
+    return next(new ErrorResponse(`Blog not found with slug: ${slug}`, 404));
+  }
+
+  // Get user's IP address
+  const userIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for']?.split(',')[0];
+
+  // Check if this IP has already viewed this blog
+  if (!blog.viewedBy.includes(userIp)) {
+    blog.viewedBy.push(userIp);
+    blog.views += 1;
+    await blog.save();
+  }
+
+  res.status(200).json({
+    success: true,
+    data: { views: blog.views }
   });
 });
 
@@ -145,22 +169,42 @@ exports.deleteBlog = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Like a blog
-// @route   PUT /api/blogs/:id/like
+// @desc    Like/Unlike a blog (toggle)
+// @route   POST /api/blogs/:slug/like
 // @access  Public
 exports.likeBlog = asyncHandler(async (req, res, next) => {
-  const blog = await Blog.findById(req.params.id);
+  const { slug } = req.params;
+  
+  const blog = await Blog.findOne({ slug });
 
   if (!blog) {
-    return next(new ErrorResponse(`Blog not found with id: ${req.params.id}`, 404));
+    return next(new ErrorResponse(`Blog not found with slug: ${slug}`, 404));
   }
 
-  blog.likes += 1;
+  // Get user's IP address
+  const userIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for']?.split(',')[0];
+
+  // Toggle like status
+  const hasLiked = blog.likedBy.includes(userIp);
+  
+  if (hasLiked) {
+    // Unlike: remove IP and decrement count
+    blog.likedBy = blog.likedBy.filter(ip => ip !== userIp);
+    blog.likes = Math.max(0, blog.likes - 1);
+  } else {
+    // Like: add IP and increment count
+    blog.likedBy.push(userIp);
+    blog.likes += 1;
+  }
+
   await blog.save();
 
   res.status(200).json({
     success: true,
-    data: { likes: blog.likes }
+    data: { 
+      likes: blog.likes,
+      isLiked: !hasLiked
+    }
   });
 });
 

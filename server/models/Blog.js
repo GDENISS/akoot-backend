@@ -63,6 +63,12 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  likedBy: [{
+    type: String // Store IP addresses or user identifiers
+  }],
+  viewedBy: [{
+    type: String // Store IP addresses to track unique views
+  }],
   metaTitle: {
     type: String,
     maxlength: 60
